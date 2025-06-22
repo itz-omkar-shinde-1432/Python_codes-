@@ -1,0 +1,47 @@
+import time
+import requests
+from stem import Signal
+from stem.control import Controller
+from datetime import datetime
+
+LOG_FILE = "ip_log.txt"
+
+def change_ip():
+    try:
+        with Controller.from_port(port=9051) as controller:
+            controller.authenticate(password='<paste your original password >') #the password which was used for creating a hashed password 
+            controller.signal(Signal.NEWNYM)
+            print("🔁 Tor circuit changed!")
+    except Exception as e:
+        print(f"[❌] Error changing IP: {e}")
+
+def get_ip_info():
+    try:
+        proxies = {
+            'http': 'socks5h://127.0.0.1:9050',
+            'https': 'socks5h://127.0.0.1:9050'
+        }
+        # This API works over Tor
+        res = requests.get("https://api.myip.com", proxies=proxies, timeout=10)
+        data = res.json()
+        ip = data.get("ip", "Unknown")
+        country = data.get("country", "Unknown")
+        return ip, country, "N/A", ""
+    except Exception as e:
+        print(f"[❌] IP Fetch Error: {e}")
+        return "[Error]", "Could not fetch IP info", "", ""
+
+def log_ip(ip, location, org):
+    with open(LOG_FILE, "a") as file:
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        file.write(f"{timestamp} | {ip} | {location} | {org}\n")
+
+if __name__ == "__main__":
+    while True:
+        print("\n🕒 Rotating IP...")
+        change_ip()
+        time.sleep(10)  # Let Tor build the circuit
+        ip, location, org, _ = get_ip_info()
+        print(f"🌐 IP: {ip}\n📍 Country: {location}\n🏢 ISP: {org}")
+        log_ip(ip, location, org)
+        time.sleep(50)  # Total: 60 sec cycle
