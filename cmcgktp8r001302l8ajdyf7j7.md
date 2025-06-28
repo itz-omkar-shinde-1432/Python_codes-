@@ -1,7 +1,7 @@
 ---
 title: ""How I Built a Tor-Based IP Rotator in Python (Change Your IP Every Minute — or Every Second!)""
 seoTitle: "Tor IP Rotator in Python: Change Your IP Every Minute Automatically"
-seoDescription: "Learn how to build a Python script that automatically changes your public IP address using the Tor network every minute. Perfect for web scraping, privacy, "
+seoDescription: "Learn how to build a Python script that automatically changes your public IP address using the Tor network every minute. Perfect for web scraping, privacy,"
 datePublished: Sat Jun 28 2025 18:30:35 GMT+0000 (Coordinated Universal Time)
 cuid: cmcgktp8r001302l8ajdyf7j7
 slug: tor-ip-rotator
@@ -195,7 +195,7 @@ Feel free to fork the GitHub repo or drop a comment with suggestions.
 ## Want to See It in Action?
 
 If you'd like to see how the script actually works — including live IP rotation and logging —  
-👉 [**Check out the video demo on my LinkedIn**](https://www.linkedin.com/in/your-link)
+👉 [**Check out the video demo on my LinkedIn**](https://www.linkedin.com/posts/omkar-shinde-3907a927a_python-tor-iprotation-activity-7344799053584433153-y9Nc?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEQa3NwBLGEN1rD-hDYI3cvAXNOHjh0S3XY)
 
 > 🧠 Bonus: I explain how to run it, common errors, and show the changing IPs in real-time.
 
@@ -276,6 +276,6 @@ And update how you extract values from the JSON response accordingly.
 Encountering an issue while setting things up?  
 I'm happy to help!
 
-👉 [](https://www.linkedin.com/in/omkar-shinde-3907a927a/)[**Message me on LinkedIn**](https://www.linkedin.com/in/omkar-shinde-3907a927a/) and I’ll get back to you as soon as I can.
+👉 [**Message me on LinkedIn**](https://www.linkedin.com/in/omkar-shinde-3907a927a/) and I’ll get back to you as soon as I can.
 
 > 📩 Whether it’s a Tor config error, IP not rotating, or proxy setup confusion — feel free to reach out.
