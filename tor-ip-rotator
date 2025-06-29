@@ -3,45 +3,67 @@ import requests
 from stem import Signal
 from stem.control import Controller
 from datetime import datetime
+from colorama import Fore, Style, init
+
+init(autoreset=True)
 
 LOG_FILE = "ip_log.txt"
 
+# === Tor IP Change ===
 def change_ip():
     try:
         with Controller.from_port(port=9051) as controller:
-            controller.authenticate(password='<paste your original password >') #the password which was used for creating a hashed password 
+            controller.authenticate(password='mynewpassword123')  # Replace with your real password
             controller.signal(Signal.NEWNYM)
-            print("🔁 Tor circuit changed!")
+            print(Fore.YELLOW + "🔁 Tor circuit change requested!")
     except Exception as e:
-        print(f"[❌] Error changing IP: {e}")
+        print(Fore.RED + f"[❌] Error changing IP: {e}")
 
+# === IP Info Fetch with Fallbacks ===
 def get_ip_info():
-    try:
-        proxies = {
-            'http': 'socks5h://127.0.0.1:9050',
-            'https': 'socks5h://127.0.0.1:9050'
-        }
-        # This API works over Tor
-        res = requests.get("https://api.myip.com", proxies=proxies, timeout=10)
-        data = res.json()
-        ip = data.get("ip", "Unknown")
-        country = data.get("country", "Unknown")
-        return ip, country, "N/A", ""
-    except Exception as e:
-        print(f"[❌] IP Fetch Error: {e}")
-        return "[Error]", "Could not fetch IP info", "", ""
+    proxies = {
+        'http': 'socks5h://127.0.0.1:9050',
+        'https': 'socks5h://127.0.0.1:9050'
+    }
 
-def log_ip(ip, location, org):
+    # List of fallback APIs
+    api_list = [
+        ("https://ipapi.co/json", lambda d: (d.get("ip"), d.get("country_name"), d.get("org"))),
+        ("https://ipinfo.io/json", lambda d: (d.get("ip"), d.get("country"), d.get("org"))),
+        ("https://httpbin.org/ip", lambda d: (d.get("origin"), "Tor Exit Node", "N/A")),
+    ]
+
+    for url, parser in api_list:
+        try:
+            res = requests.get(url, proxies=proxies, timeout=10)
+            data = res.json()
+            ip, country, org = parser(data)
+            if ip and ip != "Unknown":
+                return ip, country or "Unknown", org or "Unknown"
+        except Exception:
+            continue
+
+    return "[Error]", "Could not fetch", "Unknown"
+
+# === Log IP to File ===
+def log_ip(ip, country, org):
     with open(LOG_FILE, "a") as file:
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        file.write(f"{timestamp} | {ip} | {location} | {org}\n")
+        file.write(f"{timestamp} | {ip} | {country} | {org}\n")
 
+# === Main Loop ===
 if __name__ == "__main__":
     while True:
-        print("\n🕒 Rotating IP...")
+        print(Fore.CYAN + "\n🕒 Rotating IP...")
         change_ip()
-        time.sleep(10)  # Let Tor build the circuit
-        ip, location, org, _ = get_ip_info()
-        print(f"🌐 IP: {ip}\n📍 Country: {location}\n🏢 ISP: {org}")
-        log_ip(ip, location, org)
-        time.sleep(50)  # Total: 60 sec cycle
+        time.sleep(5)  # Allow Tor to switch circuits
+
+        ip, country, org = get_ip_info()
+
+        print(Fore.GREEN + f"🌐 IP: {ip}")
+        print(Fore.BLUE + f"📍 Country: {country}")
+        print(Fore.MAGENTA + f"🏢 ISP: {org}")
+
+        log_ip(ip, country, org)
+
+        time.sleep(5)  # Total = 10 seconds per rotation
